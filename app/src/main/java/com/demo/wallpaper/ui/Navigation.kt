@@ -24,13 +24,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.demo.wallpaper.ui.home.HomeScreen
+import com.demo.wallpaper.ui.list_image.ListImageScreen
 
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "main") {
+    NavHost(navController = navController, startDestination = "list") {
         composable("main") { HomeScreen(modifier = Modifier.padding(16.dp)) }
-        // TODO: Add more destinations
+        composable("list") {
+            ListImageScreen {
+                // TODO: go to detail screen
+            }
+        }
     }
 }
