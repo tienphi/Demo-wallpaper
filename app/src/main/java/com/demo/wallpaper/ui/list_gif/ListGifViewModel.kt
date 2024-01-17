@@ -1,4 +1,4 @@
-package com.demo.wallpaper.ui.list_image
+package com.demo.wallpaper.ui.list_gif
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.demo.wallpaper.data.ImageRepository
-import com.demo.wallpaper.data.model.UnsplashPhoto
+import com.demo.wallpaper.data.model.GiphyGif
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,15 +16,15 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ListImageViewModel @Inject constructor(
+class ListGifViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val repository: ImageRepository
 ) : ViewModel() {
 
     private var queryString: String? = savedStateHandle["keyword"]
 
-    private val _pictures = MutableStateFlow<PagingData<UnsplashPhoto>?>(null)
-    val pictures: Flow<PagingData<UnsplashPhoto>> get() = _pictures.filterNotNull()
+    private val _gifs = MutableStateFlow<PagingData<GiphyGif>?>(null)
+    val gifs: Flow<PagingData<GiphyGif>> get() = _gifs.filterNotNull()
 
     init {
         refreshData()
@@ -34,8 +34,8 @@ class ListImageViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                _pictures.value =
-                    repository.getImageSearchResultStream(queryString ?: "Animals")
+                _gifs.value =
+                    repository.getGifSearchResultStream(queryString ?: "Animals")
                         .cachedIn(viewModelScope)
                         .first()
             } catch (e: Exception) {

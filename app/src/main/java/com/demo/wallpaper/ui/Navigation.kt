@@ -24,18 +24,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.demo.wallpaper.ui.home.HomeScreen
+import com.demo.wallpaper.ui.list_gif.ListGifScreen
 import com.demo.wallpaper.ui.list_image.ListImageScreen
 
 @Composable
 fun MainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "list") {
+    NavHost(navController = navController, startDestination = "gifs") {
         composable("main") { HomeScreen(modifier = Modifier.padding(16.dp)) }
-        composable("list") {
-            ListImageScreen {
-                // TODO: go to detail screen
-            }
+        composable("images") {
+            ListImageScreen(onPhotoClick = {})
+        }
+        composable("gifs") {
+            ListGifScreen(onGifClick = {})
         }
     }
 }

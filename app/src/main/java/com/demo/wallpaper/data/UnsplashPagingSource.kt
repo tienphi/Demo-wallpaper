@@ -2,13 +2,13 @@ package com.demo.wallpaper.data
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.demo.wallpaper.data.network.api.UnsplashService
+import com.demo.wallpaper.data.network.api.ImageService
 import com.demo.wallpaper.data.network.model.NetworkUnsplashPhoto
 
 private const val UNSPLASH_STARTING_PAGE_INDEX = 1
 
 class UnsplashPagingSource(
-    private val service: UnsplashService,
+    private val service: ImageService,
     private val query: String
 ) : PagingSource<Int, NetworkUnsplashPhoto>() {
     override fun getRefreshKey(state: PagingState<Int, NetworkUnsplashPhoto>): Int? {

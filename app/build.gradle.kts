@@ -40,6 +40,7 @@ android {
         }
 
         buildConfigField("String", "UNSPLASH_ACCESS_KEY", "\"" + getUnsplashAccess() + "\"")
+        buildConfigField("String", "GIPHY_ACCESS_KEY", "\"" + getGiphyAccess() + "\"")
 
         // Enable room auto-migrations
         ksp {
@@ -119,6 +120,7 @@ dependencies {
 
     // Coil
     implementation(libs.coil.compose)
+    implementation(libs.coil.gif)
 
     // Gson
     implementation(libs.gson)
@@ -150,4 +152,8 @@ dependencies {
 
 fun getUnsplashAccess(): String? {
     return project.findProperty("unsplash_access_key") as? String
+}
+
+fun getGiphyAccess(): String? {
+    return project.findProperty("giphy_access_key") as? String
 }

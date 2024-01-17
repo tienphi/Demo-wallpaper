@@ -1,5 +1,6 @@
-package com.demo.wallpaper.ui.list_image.component
+package com.demo.wallpaper.ui.list_gif.component
 
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,19 +13,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
+import coil.compose.rememberImagePainter
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.size.OriginalSize
 
 @Composable
-fun ImageItem(
+fun GifItem(
     url: String,
     modifier: Modifier = Modifier
 ) {
-    val painter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(url)
-            .crossfade(true)
-            .build()
+    val context = LocalContext.current
+    val imageLoader = ImageLoader.Builder(context)
+        .components {
+            if (Build.VERSION.SDK_INT >= 28) {
+                add(ImageDecoderDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
+        }
+        .crossfade(true)
+        .build()
+
+    val painter2 = rememberAsyncImagePainter(
+        model = imageLoader
+    )
+
+    val painter = rememberImagePainter(
+        imageLoader = imageLoader,
+        data = url,
+        builder = {
+            size(OriginalSize)
+        }
     )
 
     Card(

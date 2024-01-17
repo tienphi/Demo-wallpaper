@@ -1,4 +1,4 @@
-package com.demo.wallpaper.ui.list_image.component
+package com.demo.wallpaper.ui.common
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

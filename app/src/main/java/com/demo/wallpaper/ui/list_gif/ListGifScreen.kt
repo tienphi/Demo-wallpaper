@@ -1,4 +1,4 @@
-package com.demo.wallpaper.ui.list_image
+package com.demo.wallpaper.ui.list_gif
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,46 +23,34 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.demo.wallpaper.data.model.UnsplashPhoto
-import com.demo.wallpaper.ui.list_image.component.ImageItem
+import com.demo.wallpaper.data.model.GiphyGif
+import com.demo.wallpaper.ui.list_gif.component.GifItem
 import kotlinx.coroutines.flow.Flow
 
 @Composable
-fun ListImageScreen(
-    viewModel: ListImageViewModel = hiltViewModel(),
-    onPhotoClick: (UnsplashPhoto) -> Unit,
+fun ListGifScreen(
+    viewModel: ListGifViewModel = hiltViewModel(),
+    onGifClick: (GiphyGif) -> Unit,
 ) {
-    ListImageScreen(
-        pictures = viewModel.pictures,
+    ListGifScreen(
+        pictures = viewModel.gifs,
         title = "Animals",
-        onPhotoClick = onPhotoClick,
+        onGifClick = onGifClick,
         onPullToRefresh = viewModel::refreshData
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun ListImageTopBar(
+internal fun ListGifScreen(
+    pictures: Flow<PagingData<GiphyGif>>,
     title: String,
-    modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = { Text(text = "Photos by Unsplash - $title") },
-        modifier = modifier,
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun ListImageScreen(
-    pictures: Flow<PagingData<UnsplashPhoto>>,
-    title: String,
-    onPhotoClick: (UnsplashPhoto) -> Unit,
+    onGifClick: (GiphyGif) -> Unit,
     onPullToRefresh: () -> Unit,
 ) {
     Scaffold(
         topBar = {
-            ListImageTopBar(title = title)
+            ListGifTopBar(title = title)
         }
     ) { padding ->
         val pullToRefreshState = rememberPullToRefreshState()
@@ -71,7 +59,7 @@ internal fun ListImageScreen(
             onPullToRefresh()
         }
 
-        val pagingItems: LazyPagingItems<UnsplashPhoto> =
+        val pagingItems: LazyPagingItems<GiphyGif> =
             pictures.collectAsLazyPagingItems()
 
         LaunchedEffect(pagingItems.loadState) {
@@ -99,7 +87,7 @@ internal fun ListImageScreen(
                 ) { index ->
                     val photo = pagingItems[index] ?: return@items
 
-                    ImageItem(url = photo.urls.small)
+                    GifItem(url = photo.images.original.url)
                 }
             }
 
@@ -109,4 +97,16 @@ internal fun ListImageScreen(
             )
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun ListGifTopBar(
+    title: String,
+    modifier: Modifier = Modifier
+) {
+    TopAppBar(
+        title = { Text(text = "Gifs by Giphy - $title") },
+        modifier = modifier,
+    )
 }
