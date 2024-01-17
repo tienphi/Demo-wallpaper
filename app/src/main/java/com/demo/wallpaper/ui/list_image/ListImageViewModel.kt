@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.demo.wallpaper.data.UnsplashRepository
-import com.demo.wallpaper.data.network.model.UnsplashPhotoNetwork
+import com.demo.wallpaper.data.model.UnsplashPhoto
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,8 +23,8 @@ class ListImageViewModel @Inject constructor(
 
     private var queryString: String? = savedStateHandle["plantName"]
 
-    private val _pictures = MutableStateFlow<PagingData<UnsplashPhotoNetwork>?>(null)
-    val pictures: Flow<PagingData<UnsplashPhotoNetwork>> get() = _pictures.filterNotNull()
+    private val _pictures = MutableStateFlow<PagingData<UnsplashPhoto>?>(null)
+    val pictures: Flow<PagingData<UnsplashPhoto>> get() = _pictures.filterNotNull()
 
     init {
         refreshData()
@@ -35,7 +35,8 @@ class ListImageViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _pictures.value =
-                    repository.getSearchResultStream(queryString ?: "Animals").cachedIn(viewModelScope)
+                    repository.getSearchResultStream(queryString ?: "Animals")
+                        .cachedIn(viewModelScope)
                         .first()
             } catch (e: Exception) {
                 e.printStackTrace()

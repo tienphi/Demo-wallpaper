@@ -3,15 +3,15 @@ package com.demo.wallpaper.data
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.demo.wallpaper.data.network.api.UnsplashService
-import com.demo.wallpaper.data.network.model.UnsplashPhotoNetwork
+import com.demo.wallpaper.data.network.model.NetworkUnsplashPhoto
 
 private const val UNSPLASH_STARTING_PAGE_INDEX = 1
 
 class UnsplashPagingSource(
     private val service: UnsplashService,
     private val query: String
-) : PagingSource<Int, UnsplashPhotoNetwork>() {
-    override fun getRefreshKey(state: PagingState<Int, UnsplashPhotoNetwork>): Int? {
+) : PagingSource<Int, NetworkUnsplashPhoto>() {
+    override fun getRefreshKey(state: PagingState<Int, NetworkUnsplashPhoto>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             // This loads starting from previous page, but since PagingConfig.initialLoadSize spans
             // multiple pages, the initial load will still load items centered around
@@ -21,7 +21,7 @@ class UnsplashPagingSource(
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, UnsplashPhotoNetwork> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, NetworkUnsplashPhoto> {
         val page = params.key ?: UNSPLASH_STARTING_PAGE_INDEX
         return try {
             val response = service.searchPhotos(query, page, params.loadSize)

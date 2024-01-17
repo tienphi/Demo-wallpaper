@@ -23,14 +23,14 @@ import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
-import com.demo.wallpaper.data.network.model.UnsplashPhotoNetwork
+import com.demo.wallpaper.data.model.UnsplashPhoto
 import com.demo.wallpaper.ui.list_image.component.ImageItem
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun ListImageScreen(
     viewModel: ListImageViewModel = hiltViewModel(),
-    onPhotoClick: (UnsplashPhotoNetwork) -> Unit
+    onPhotoClick: (UnsplashPhoto) -> Unit
 ) {
     ListImageScreen(
         pictures = viewModel.pictures,
@@ -55,9 +55,9 @@ internal fun ListImageTopBar(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ListImageScreen(
-    pictures: Flow<PagingData<UnsplashPhotoNetwork>>,
+    pictures: Flow<PagingData<UnsplashPhoto>>,
     title: String,
-    onPhotoClick: (UnsplashPhotoNetwork) -> Unit = {},
+    onPhotoClick: (UnsplashPhoto) -> Unit = {},
     onPullToRefresh: () -> Unit,
 ) {
     Scaffold(
@@ -71,7 +71,7 @@ internal fun ListImageScreen(
             onPullToRefresh()
         }
 
-        val pagingItems: LazyPagingItems<UnsplashPhotoNetwork> =
+        val pagingItems: LazyPagingItems<UnsplashPhoto> =
             pictures.collectAsLazyPagingItems()
 
         LaunchedEffect(pagingItems.loadState) {
