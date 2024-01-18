@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.demo.wallpaper.ui.choose_type.ChooseTypeScreen
 import com.demo.wallpaper.ui.home.HomeScreen
 import com.demo.wallpaper.ui.list_gif.ListGifScreen
 import com.demo.wallpaper.ui.list_image.ListImageScreen
@@ -33,6 +34,9 @@ fun MainNavigation() {
 
     NavHost(navController = navController, startDestination = "gifs") {
         composable("main") { HomeScreen(modifier = Modifier.padding(16.dp)) }
+        composable("choose-type") {
+            ChooseTypeScreen(modifier = Modifier.padding(16.dp))
+        }
         composable("images") {
             ListImageScreen(onPhotoClick = {})
         }
