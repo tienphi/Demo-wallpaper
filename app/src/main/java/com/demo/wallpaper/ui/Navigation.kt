@@ -24,6 +24,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.demo.wallpaper.ui.choose_type.ChooseTypeScreen
+import com.demo.wallpaper.ui.detail.DetailScreen
 import com.demo.wallpaper.ui.home.HomeScreen
 import com.demo.wallpaper.ui.list_gif.ListGifScreen
 import com.demo.wallpaper.ui.list_image.ListImageScreen
@@ -32,7 +33,7 @@ import com.demo.wallpaper.ui.list_image.ListImageScreen
 fun MainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "gifs") {
+    NavHost(navController = navController, startDestination = "detail") {
         composable("main") { HomeScreen(modifier = Modifier.padding(16.dp)) }
         composable("choose-type") {
             ChooseTypeScreen(modifier = Modifier.padding(16.dp))
@@ -42,6 +43,9 @@ fun MainNavigation() {
         }
         composable("gifs") {
             ListGifScreen(onGifClick = {})
+        }
+        composable("detail") {
+            DetailScreen()
         }
     }
 }
