@@ -1,42 +1,48 @@
 package com.demo.wallpaper
 
+import android.graphics.Canvas
 import android.graphics.Movie
 import android.os.Handler
 import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
 import android.view.SurfaceHolder
-import java.net.URL
 
-class GIFWallpaperService(
-//    val url: String
-) : WallpaperService() {
+class GIFWallpaperService : WallpaperService() {
     override fun onCreateEngine(): Engine? {
-        return try {
-            val movie = Movie.decodeStream(
-//                URL(url).openStream()
-                URL("https://media1.giphy.com/media/33zX3zllJBGY8/giphy.gif?cid=9eb124f18qbdxco9da2u9h43aawsudud3wsdwiffnlz0xxhd&ep=v1_gifs_search&rid=giphy.gif&ct=g").openStream()
-            )
-            GIFWallpaperEngine(movie)
-        } catch (e: Exception) {
-            Log.d("GIFWallpaperService", "Could not load asset");
-            null
-        }finally {
 
+        return try {
+            GIFWallpaperEngine()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.d(GIFWallpaperService::class.java.simpleName, "Error creating GIFWallpaperEngine")
+            stopSelf()
+            null
         }
     }
 
-    private inner class GIFWallpaperEngine(val movie: Movie) : WallpaperService.Engine() {
+    private inner class GIFWallpaperEngine : WallpaperService.Engine() {
 
-        //        A Handler allows you to send and process Message and Runnable objects associated
-//        with a thread's MessageQueue
+        // A Handler allows you to send and process Message and Runnable objects associated
+        // with a thread's MessageQueue
+        private var movie: Movie? = null
         private val handler = Handler(Looper.getMainLooper())
         private val drawGIF = Runnable { draw() }
 
-        //    The holder to hold the pixels
+        // The holder to hold the pixels
         private var holder: SurfaceHolder? = null
         private val frameDuration = 20
         private var isVisible = false
+
+        private var scaleX: Float? = null
+        private var scaleY: Float? = null
+
+        init {
+            val inputStream = resources.openRawResource(R.raw.unicorn)
+            inputStream.use { stream ->
+                movie = Movie.decodeStream(stream)
+            }
+        }
 
         override fun onCreate(surfaceHolder: SurfaceHolder?) {
             super.onCreate(surfaceHolder)
@@ -44,7 +50,7 @@ class GIFWallpaperService(
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
-//        Called when the visibility of the view or an ancestor of the view
+            //  Called when the visibility of the view or an ancestor of the view
             isVisible = visible
             if (visible) {
                 handler.post(drawGIF)
@@ -53,8 +59,23 @@ class GIFWallpaperService(
             }
         }
 
+        override fun onSurfaceChanged(
+            holder: SurfaceHolder?,
+            format: Int,
+            width: Int,
+            height: Int
+        ) {
+            super.onSurfaceChanged(holder, format, width, height)
+            movie?.let { movie->
+                scaleX = width / (1f * movie.width())
+                scaleY = height / (1f * movie.height())
+                draw()
+            }
+        }
+
         override fun onSurfaceDestroyed(holder: SurfaceHolder?) {
             super.onSurfaceDestroyed(holder)
+            isVisible = false
             handler.removeCallbacks(drawGIF)
         }
 
@@ -66,18 +87,29 @@ class GIFWallpaperService(
         fun draw() {
             if (isVisible) {
                 holder?.let { holder ->
-//                A Canvas to host the draw calls (writing into the holder)
-                    val canvas = holder.lockCanvas().apply {
-                        save()
-                        // Adjust size and position so that
-                        // the image looks good on your screen
-                        scale(1f, 1f)
+                    // A Canvas to host the draw calls (writing into the holder)
+                    var canvas: Canvas? = null
+                    try {
+                        canvas = holder.lockCanvas().apply {
+                            save()
+                            movie?.let { movie ->
+                                // Adjust size and position so that
+                                // the image looks good on your screen
+                                scale(scaleX!!, scaleY!!)
+                                movie.draw(this, 0f, 0f)
+                                restore()
+                                movie.setTime((System.currentTimeMillis() % movie.duration()).toInt())
+                            }
+                        }
+                    } finally {
+                        canvas?.let { holder.unlockCanvasAndPost(it) }
                     }
-                    movie.draw(canvas, 0f, 0f)
-                    canvas.restore()
-                    holder.unlockCanvasAndPost(canvas)
-                    movie.setTime((System.currentTimeMillis() % movie.duration()).toInt())
-                    handler.removeCallbacks(drawGIF, frameDuration)
+
+                    handler.removeCallbacks(drawGIF)
+
+                    if (isVisible) {
+                        handler.postDelayed(drawGIF, frameDuration.toLong())
+                    }
                 }
             }
         }
