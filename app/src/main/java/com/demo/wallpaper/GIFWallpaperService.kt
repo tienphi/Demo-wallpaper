@@ -34,13 +34,61 @@ class GIFWallpaperService : WallpaperService() {
         private val frameDuration = 20
         private var isVisible = false
 
-        private var scaleX: Float? = null
-        private var scaleY: Float? = null
+        private var gifRatio: Float? = null
+        private var gifWidth: Float? = null
+        private var gifHeight: Float? = null
+        private var surfaceRatio: Float? = null
+        private var surfaceWidth: Float? = null
+        private var surfaceHeight: Float? = null
+
+        // To scale gif image
+        private val scale: Float
+            get() = try {
+                if (gifRatio!! < surfaceRatio!!) {
+                    surfaceHeight!! / gifHeight!!
+                } else {
+                    surfaceWidth!! / gifWidth!!
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                1f
+            }
+
+        // Top-left x-coordinate value
+        private val posX: Float
+            get() = try {
+                if (gifRatio!! < surfaceRatio!!) {
+                    (surfaceWidth!! - gifWidth!! * scale) / 2
+                } else {
+                    0f
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0f
+            }
+
+        // Top-left y-coordinate value
+        private val posY: Float
+            get() = try {
+                if (gifRatio!! < surfaceRatio!!) {
+                    0f
+                } else {
+                    (surfaceHeight!! - gifHeight!! * scale) / 2
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0f
+            }
 
         init {
             val inputStream = resources.openRawResource(R.raw.unicorn)
             inputStream.use { stream ->
                 movie = Movie.decodeStream(stream)
+                movie?.let {
+                    gifWidth = it.width().toFloat()
+                    gifHeight = it.height().toFloat()
+                    gifRatio = it.width().toFloat() / it.height()
+                }
             }
         }
 
@@ -66,11 +114,12 @@ class GIFWallpaperService : WallpaperService() {
             height: Int
         ) {
             super.onSurfaceChanged(holder, format, width, height)
-            movie?.let { movie->
-                scaleX = width / (1f * movie.width())
-                scaleY = height / (1f * movie.height())
-                draw()
+            holder?.let {
+                surfaceWidth = width.toFloat()
+                surfaceHeight = height.toFloat()
+                surfaceRatio = width.toFloat() / height
             }
+            movie?.let { draw() }
         }
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder?) {
@@ -95,8 +144,8 @@ class GIFWallpaperService : WallpaperService() {
                             movie?.let { movie ->
                                 // Adjust size and position so that
                                 // the image looks good on your screen
-                                scale(scaleX!!, scaleY!!)
-                                movie.draw(this, 0f, 0f)
+                                scale(scale, scale)
+                                movie.draw(this, posX, posY)
                                 restore()
                                 movie.setTime((System.currentTimeMillis() % movie.duration()).toInt())
                             }
