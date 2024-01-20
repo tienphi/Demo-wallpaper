@@ -7,6 +7,11 @@ import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
 import android.view.SurfaceHolder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import java.net.URL
 
 class GIFWallpaperService : WallpaperService() {
     override fun onCreateEngine(): Engine? {
@@ -81,13 +86,22 @@ class GIFWallpaperService : WallpaperService() {
             }
 
         init {
-            val inputStream = resources.openRawResource(R.raw.unicorn)
-            inputStream.use { stream ->
-                movie = Movie.decodeStream(stream)
-                movie?.let {
-                    gifWidth = it.width().toFloat()
-                    gifHeight = it.height().toFloat()
-                    gifRatio = it.width().toFloat() / it.height()
+//            val inputStream = resources.openRawResource(R.raw.unicorn)
+            val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+            scope.launch {
+                val inputStream = URL(
+                    "https://media1.giphy.com/media/33zX3zllJBGY8/giphy.gif" +
+                            "?cid=9eb124f18qbdxco9da2u9h43aawsudud3wsdwiffnlz0xxhd&ep=v1_gifs_search&rid=giphy.gif&ct=g"
+                ).openStream()
+
+                inputStream.use { stream ->
+                    movie = Movie.decodeStream(stream)
+                    movie?.let {
+                        gifWidth = it.width().toFloat()
+                        gifHeight = it.height().toFloat()
+                        gifRatio = it.width().toFloat() / it.height()
+                    }
                 }
             }
         }
@@ -144,8 +158,10 @@ class GIFWallpaperService : WallpaperService() {
                             movie?.let { movie ->
                                 // Adjust size and position so that
                                 // the image looks good on your screen
-                                scale(scale, scale)
-                                movie.draw(this, posX, posY)
+//                                scale(scale, scale)
+//                                movie.draw(this, posX, posY)
+                                scale(surfaceWidth!! / gifWidth!!, surfaceHeight!! / gifHeight!!)
+                                movie.draw(this, 0f, 0f)
                                 restore()
                                 movie.setTime((System.currentTimeMillis() % movie.duration()).toInt())
                             }
