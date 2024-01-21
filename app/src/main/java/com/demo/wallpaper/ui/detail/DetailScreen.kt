@@ -6,11 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -30,10 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -55,7 +50,6 @@ import com.demo.wallpaper.data.local.GIF_URL
 import com.demo.wallpaper.data.local.dataStore
 import com.demo.wallpaper.ui.theme.WallpaperApplicationTheme
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
@@ -70,9 +64,9 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel()
 ) {
     val uiState: DetailUiState by viewModel.uiState.collectAsStateWithLifecycle()
-//    val context = LocalContext.current
-//    val wallpaperManager = WallpaperManager.getInstance(LocalContext.current)
-//    val composableScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val wallpaperManager = WallpaperManager.getInstance(LocalContext.current)
+    val composableScope = rememberCoroutineScope()
 
     WallpaperApplicationTheme {
         when (uiState) {
@@ -87,14 +81,16 @@ fun DetailScreen(
                     modifier = modifier,
                     url = (uiState as DetailUiState.Success).url,
                     type = (uiState as DetailUiState.Success).type,
-//                    onClickSetWallpaper = { url ->
-//                        composableScope.launch {
-//                            setWallpaper(context, wallpaperManager, url)
-//                        }
-//                    },
-//                    onClickCropSetWallpaper = { url ->
-//                        cropAndSetWallpaper(wallpaperManager, url)
-//                    },
+                    onClickSetWallpaper = { url ->
+                        composableScope.launch {
+                            setImageAsWallpaper(context, wallpaperManager, url)
+                        }
+                    },
+                    onClickCropSetWallpaper = { url ->
+                        composableScope.launch {
+                            cropAndSetWallpaper(context, wallpaperManager, url)
+                        }
+                    },
                 )
             }
         }
@@ -141,8 +137,8 @@ private fun ErrorScreen(
 private fun DetailScreen(
     url: String,
     type: String,
-//    onClickSetWallpaper: (String) -> Unit,
-//    onClickCropSetWallpaper: (String) -> Unit,
+    onClickSetWallpaper: (String) -> Unit,
+    onClickCropSetWallpaper: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
 
@@ -173,21 +169,6 @@ private fun DetailScreen(
             size(OriginalSize)
         }
     )
-
-    var choseWallpaper by remember {
-        mutableStateOf(false)
-    }
-
-    val composableScope = rememberCoroutineScope()
-    val wallpaperManager = WallpaperManager.getInstance(context)
-    var wallpaperBitmap by remember { mutableStateOf<Bitmap?>(null) }
-
-    if (choseWallpaper && type == TYPE_IMAGE) {
-        LaunchedEffect(key1 = true) {
-            val loadBitmap = loadBitmapFromUrl(url)
-            wallpaperBitmap = loadBitmap
-        }
-    }
 
     if (type == TYPE_GIF) {
         LaunchedEffect(key1 = true) {
@@ -229,77 +210,21 @@ private fun DetailScreen(
                     Text(text = "Set gif as wallpaper")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-            } else {
+            } else if (type == TYPE_IMAGE) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-//                    onClickSetWallpaper(url)
-                        choseWallpaper = true
-                        composableScope.launch {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                                try {
-                                    if (wallpaperBitmap != null) {
-                                        Log.d("DetailScreen", "Set wallpaper")
-                                        wallpaperManager.setBitmap(
-                                            wallpaperBitmap,
-                                            Rect(10, 200, 50, 400),
-                                            true,
-                                            WallpaperManager.FLAG_SYSTEM
-                                        )
-                                        Toast.makeText(
-                                            context,
-                                            "Home Screen Wallpaper Updated Successfully",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        delay(1000)
-                                        choseWallpaper = false
-                                    }
-
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-
-                                    Toast.makeText(
-                                        context,
-                                        "Unsuccessful",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-                        }
+                        onClickSetWallpaper(url)
                     }
-                )
-                {
+                ) {
                     Text(text = "Set wallpaper")
                 }
                 Spacer(modifier = Modifier.width(16.dp))
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-//                    onClickCropSetWallpaper(url)
-                        choseWallpaper = true
-                        composableScope.launch {
-                            try {
-                                if (wallpaperBitmap != null) {
-                                    Log.d("DetailScreen", "Crop & Set wallpaper")
-                                    context.startActivity(
-                                        wallpaperManager.getCropAndSetWallpaperIntent(
-                                            context.getImageUri(wallpaperBitmap)
-                                        )
-                                    )
-                                    choseWallpaper = false
-                                }
-
-                            } catch (e: Exception) {
-                                e.printStackTrace()
-
-                                Toast.makeText(
-                                    context,
-                                    "Unsuccessful",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        }
+                        onClickCropSetWallpaper(url)
                     }
                 )
                 {
@@ -308,19 +233,6 @@ private fun DetailScreen(
                 Spacer(modifier = Modifier.width(8.dp))
             }
         }
-    }
-}
-
-@MultipleWidthPreview
-@Composable
-fun DetailScreenPreview() {
-    WallpaperApplicationTheme {
-        DetailScreen(
-            url = "",
-            type = TYPE_IMAGE
-//            onClickSetWallpaper = {},
-//            onClickCropSetWallpaper = {}
-        )
     }
 }
 
@@ -339,37 +251,6 @@ fun LoadingScreenPreview() {
         LoadingScreen()
     }
 }
-
-suspend fun setWallpaper(context: Context, wallpaperManager: WallpaperManager, url: String) {
-    val loadBitmap = loadBitmapFromUrl(url)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        try {
-            wallpaperManager.setBitmap(
-                loadBitmap,
-                null,
-                true,
-                WallpaperManager.FLAG_SYSTEM
-            )
-            Toast.makeText(
-                context,
-                "Home Screen Wallpaper Updated Successfully",
-                Toast.LENGTH_SHORT
-            ).show()
-            delay(1000)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    } else {
-//        val intent = Intent(Intent.ACTION_SET_WALLPAPER)
-//        val chooserIntent: Intent =
-//            Intent.createChooser(intent = intent, title = ("Select Wallpaper" as CharSequence))
-//        startActivity(chooserIntent)
-    }
-}
-
-//fun cropAndSetWallpaper(wallpaperManager: WallpaperManager, url: String) {
-//
-//}
 
 suspend fun loadBitmapFromUrl(imageUrl: String): Bitmap? {
     return withContext(Dispatchers.IO) {
@@ -399,4 +280,88 @@ fun Context.getImageUri(bitmap: Bitmap?): Uri {
         contentResolver, bitmap, System.currentTimeMillis().toString(), null
     )
     return Uri.parse(path)
+}
+
+private suspend fun setImageAsWallpaper(
+    context: Context,
+    wallpaperManager: WallpaperManager,
+    url: String
+) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        try {
+            var wallpaperBitmap: Bitmap?
+            withContext(Dispatchers.IO) {
+                loadBitmapFromUrl(url).also { bitmap ->
+                    wallpaperBitmap = bitmap
+                }
+
+                wallpaperBitmap?.let {
+                    wallpaperManager.setBitmap(
+                        it,
+                        null,
+                        true,
+                        WallpaperManager.FLAG_SYSTEM
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        context,
+                        "Home Screen Wallpaper Updated Successfully",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "Unsuccessful",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    } else {
+//        withContext(Dispatchers.Main) {
+//            val intent = Intent(Intent.ACTION_SET_WALLPAPER)
+//            val chooserIntent: Intent =
+//                Intent.createChooser(intent = intent, title = ("Select Wallpaper" as CharSequence))
+//            context.startActivity(chooserIntent)
+//        }
+    }
+}
+
+private suspend fun cropAndSetWallpaper(
+    context: Context,
+    wallpaperManager: WallpaperManager,
+    url: String
+) {
+    try {
+        var wallpaperBitmap: Bitmap?
+        withContext(Dispatchers.IO) {
+            loadBitmapFromUrl(url).also { bitmap ->
+                wallpaperBitmap = bitmap
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            wallpaperBitmap?.let {
+                context.startActivity(
+                    wallpaperManager.getCropAndSetWallpaperIntent(
+                        context.getImageUri(it)
+                    )
+                )
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        withContext(Dispatchers.Main) {
+            Toast.makeText(
+                context,
+                "Unsuccessful",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
 }
