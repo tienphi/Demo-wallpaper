@@ -35,7 +35,7 @@ class ListGifViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _gifs.value =
-                    repository.getGifSearchResultStream(queryString ?: "Animals")
+                    repository.getGifSearchResultStream(queryString ?: "Weather")
                         .cachedIn(viewModelScope)
                         .first()
             } catch (e: Exception) {

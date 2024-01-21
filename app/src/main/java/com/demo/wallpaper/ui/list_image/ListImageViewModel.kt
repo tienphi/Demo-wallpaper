@@ -35,7 +35,7 @@ class ListImageViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _pictures.value =
-                    repository.getImageSearchResultStream(queryString ?: "Animals")
+                    repository.getImageSearchResultStream(queryString ?: "Weather")
                         .cachedIn(viewModelScope)
                         .first()
             } catch (e: Exception) {

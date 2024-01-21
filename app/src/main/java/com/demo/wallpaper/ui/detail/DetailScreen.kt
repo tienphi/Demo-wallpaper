@@ -202,7 +202,6 @@ private fun DetailScreen(
                                 WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
                                 ComponentName(context, GIFWallpaperService::class.java)
                             )
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS or Intent.FLAG_ACTIVITY_NO_ANIMATION)
                         }
                         context.startActivity(intent)
                     }

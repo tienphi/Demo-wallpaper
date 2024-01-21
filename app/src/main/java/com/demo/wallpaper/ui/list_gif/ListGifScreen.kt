@@ -30,11 +30,11 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun ListGifScreen(
     viewModel: ListGifViewModel = hiltViewModel(),
-    onGifClick: (GiphyGif) -> Unit,
+    onGifClick: (String) -> Unit,
 ) {
     ListGifScreen(
         pictures = viewModel.gifs,
-        title = "Animals",
+        title = "Weather",
         onGifClick = onGifClick,
         onPullToRefresh = viewModel::refreshData
     )
@@ -45,7 +45,7 @@ fun ListGifScreen(
 internal fun ListGifScreen(
     pictures: Flow<PagingData<GiphyGif>>,
     title: String,
-    onGifClick: (GiphyGif) -> Unit,
+    onGifClick: (String) -> Unit,
     onPullToRefresh: () -> Unit,
 ) {
     Scaffold(
@@ -87,7 +87,10 @@ internal fun ListGifScreen(
                 ) { index ->
                     val photo = pagingItems[index] ?: return@items
 
-                    GifItem(url = photo.images.original.url)
+                    GifItem(
+                        url = photo.images.fixedHeight.url,
+                        onClickItem = { onGifClick(photo.images.original.url) }
+                    )
                 }
             }
 

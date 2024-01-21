@@ -25,6 +25,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.demo.wallpaper.ui.choose_type.ChooseTypeScreen
 import com.demo.wallpaper.ui.detail.DetailScreen
+import com.demo.wallpaper.ui.detail.TYPE_GIF
+import com.demo.wallpaper.ui.detail.TYPE_IMAGE
 import com.demo.wallpaper.ui.home.HomeScreen
 import com.demo.wallpaper.ui.list_gif.ListGifScreen
 import com.demo.wallpaper.ui.list_image.ListImageScreen
@@ -33,18 +35,56 @@ import com.demo.wallpaper.ui.list_image.ListImageScreen
 fun MainNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "detail") {
-        composable("main") { HomeScreen(modifier = Modifier.padding(16.dp)) }
-        composable("choose-type") {
-            ChooseTypeScreen(modifier = Modifier.padding(16.dp))
+    NavHost(
+        navController = navController,
+        startDestination = Screen.Choose.route
+    ) {
+        composable(Screen.Home.route) {
+            HomeScreen(modifier = Modifier.padding(16.dp))
         }
-        composable("images") {
-            ListImageScreen(onPhotoClick = {})
+        composable(Screen.Choose.route) {
+            ChooseTypeScreen(
+                modifier = Modifier.padding(16.dp),
+                onClickImage = {
+                    navController.navigate(
+                        Screen.Images.route
+                    )
+                },
+                onClickGif = {
+                    navController.navigate(
+                        Screen.Gifts.route
+                    )
+                },
+            )
         }
-        composable("gifs") {
-            ListGifScreen(onGifClick = {})
+        composable(Screen.Images.route) {
+            ListImageScreen(
+                onPhotoClick = {
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            type = TYPE_IMAGE,
+                            url = it
+                        )
+                    )
+                }
+            )
         }
-        composable("detail") {
+        composable(Screen.Gifts.route) {
+            ListGifScreen(
+                onGifClick = {
+                    navController.navigate(
+                        Screen.Detail.createRoute(
+                            type = TYPE_GIF,
+                            url = it
+                        )
+                    )
+                }
+            )
+        }
+        composable(
+            route = Screen.Detail.route,
+            arguments = Screen.Detail.navArguments
+        ) {
             DetailScreen()
         }
     }

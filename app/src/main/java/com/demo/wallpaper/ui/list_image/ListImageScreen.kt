@@ -30,11 +30,11 @@ import kotlinx.coroutines.flow.Flow
 @Composable
 fun ListImageScreen(
     viewModel: ListImageViewModel = hiltViewModel(),
-    onPhotoClick: (UnsplashPhoto) -> Unit,
+    onPhotoClick: (String) -> Unit,
 ) {
     ListImageScreen(
         pictures = viewModel.pictures,
-        title = "Animals",
+        title = "Weather",
         onPhotoClick = onPhotoClick,
         onPullToRefresh = viewModel::refreshData
     )
@@ -57,7 +57,7 @@ internal fun ListImageTopBar(
 internal fun ListImageScreen(
     pictures: Flow<PagingData<UnsplashPhoto>>,
     title: String,
-    onPhotoClick: (UnsplashPhoto) -> Unit,
+    onPhotoClick: (String) -> Unit,
     onPullToRefresh: () -> Unit,
 ) {
     Scaffold(
@@ -99,7 +99,10 @@ internal fun ListImageScreen(
                 ) { index ->
                     val photo = pagingItems[index] ?: return@items
 
-                    ImageItem(url = photo.urls.small)
+                    ImageItem(
+                        url = photo.urls.small,
+                        onClickItem = { onPhotoClick(photo.urls.full) }
+                    )
                 }
             }
 

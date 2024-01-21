@@ -16,44 +16,35 @@ import androidx.compose.ui.unit.dp
 import com.demo.wallpaper.ui.theme.WallpaperApplicationTheme
 
 @Composable
-fun ChooseTypeScreen(modifier: Modifier = Modifier) {
-    WallpaperApplicationTheme {
-        ChooseTypeScreen(
-            modifier = modifier,
-            onClickImage = {},
-            onClickGif = {}
-        )
-    }
-}
-
-@Composable
-private fun ChooseTypeScreen(
+fun ChooseTypeScreen(
     modifier: Modifier = Modifier,
     onClickImage: () -> Unit,
     onClickGif: () -> Unit,
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Text(text = "What type of wallpaper do you want?")
-        Spacer(modifier = Modifier.height(16.dp))
+    WallpaperApplicationTheme {
         Column(
-            modifier = Modifier.width(200.dp)
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onClickImage
+            Text(text = "What type of wallpaper do you want?")
+            Spacer(modifier = Modifier.height(16.dp))
+            Column(
+                modifier = Modifier.width(200.dp)
             ) {
-                Text(text = "Normal image")
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onClickGif
-            ) {
-                Text(text = "Gif")
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onClickImage
+                ) {
+                    Text(text = "Normal image")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Button(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = onClickGif
+                ) {
+                    Text(text = "Gif")
+                }
             }
         }
     }
@@ -62,10 +53,8 @@ private fun ChooseTypeScreen(
 @Preview(showBackground = true, widthDp = 980, heightDp = 360)
 @Composable
 fun ChooseTypeScreenPreview() {
-    WallpaperApplicationTheme {
-        ChooseTypeScreen(
-            onClickImage = {},
-            onClickGif = {}
-        )
-    }
+    ChooseTypeScreen(
+        onClickImage = {},
+        onClickGif = {}
+    )
 }

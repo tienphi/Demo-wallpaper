@@ -17,8 +17,9 @@ import coil.request.ImageRequest
 
 @Composable
 fun ImageItem(
+    modifier: Modifier = Modifier,
     url: String,
-    modifier: Modifier = Modifier
+    onClickItem: () -> Unit,
 ) {
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
@@ -32,7 +33,7 @@ fun ImageItem(
             .padding(horizontal = 4.dp, vertical = 4.dp)
             .size(width = 150.dp, height = 250.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer),
-        onClick = {},
+        onClick = onClickItem,
         shape = MaterialTheme.shapes.medium
     ) {
         Image(
