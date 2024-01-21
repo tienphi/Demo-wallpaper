@@ -133,6 +133,9 @@ dependencies {
     // Paging
     implementation(libs.androidx.paging.compose)
 
+    // Data store
+    implementation(libs.datastore.preferences)
+
     // Tooling
     debugImplementation(libs.androidx.compose.ui.tooling)
     // Instrumented tests

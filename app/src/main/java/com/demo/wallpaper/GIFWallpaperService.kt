@@ -7,9 +7,13 @@ import android.os.Looper
 import android.service.wallpaper.WallpaperService
 import android.util.Log
 import android.view.SurfaceHolder
+import com.demo.wallpaper.data.local.GIF_URL
+import com.demo.wallpaper.data.local.dataStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.net.URL
 
@@ -87,21 +91,29 @@ class GIFWallpaperService : WallpaperService() {
 
         init {
 //            val inputStream = resources.openRawResource(R.raw.unicorn)
+
+            val urlFlow: Flow<String> = applicationContext.dataStore.data
+                .map { preferences ->
+                    preferences[GIF_URL] ?: ""
+                }
             val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
             scope.launch {
-                val inputStream = URL(
-                    "https://media1.giphy.com/media/33zX3zllJBGY8/giphy.gif" +
-                            "?cid=9eb124f18qbdxco9da2u9h43aawsudud3wsdwiffnlz0xxhd&ep=v1_gifs_search&rid=giphy.gif&ct=g"
-                ).openStream()
 
-                inputStream.use { stream ->
-                    movie = Movie.decodeStream(stream)
-                    movie?.let {
-                        gifWidth = it.width().toFloat()
-                        gifHeight = it.height().toFloat()
-                        gifRatio = it.width().toFloat() / it.height()
+                urlFlow.collect {
+                    Log.d(GIFWallpaperService::class.java.simpleName, "URL: $it")
+
+                    val inputStream = URL(it).openStream()
+
+                    inputStream.use { stream ->
+                        movie = Movie.decodeStream(stream)
+                        movie?.let { mv ->
+                            gifWidth = mv.width().toFloat()
+                            gifHeight = mv.height().toFloat()
+                            gifRatio = mv.width().toFloat() / mv.height()
+                        }
                     }
+                    draw()
                 }
             }
         }

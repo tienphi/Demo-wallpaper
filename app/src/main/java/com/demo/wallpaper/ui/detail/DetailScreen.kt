@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.datastore.preferences.core.edit
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.ImageLoader
@@ -50,6 +51,8 @@ import coil.request.ImageRequest
 import coil.size.OriginalSize
 import com.demo.wallpaper.GIFWallpaperService
 import com.demo.wallpaper.MultipleWidthPreview
+import com.demo.wallpaper.data.local.GIF_URL
+import com.demo.wallpaper.data.local.dataStore
 import com.demo.wallpaper.ui.theme.WallpaperApplicationTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -183,6 +186,14 @@ private fun DetailScreen(
         LaunchedEffect(key1 = true) {
             val loadBitmap = loadBitmapFromUrl(url)
             wallpaperBitmap = loadBitmap
+        }
+    }
+
+    if (type == TYPE_GIF) {
+        LaunchedEffect(key1 = true) {
+            context.dataStore.edit { settings ->
+                settings[GIF_URL] = url
+            }
         }
     }
 
